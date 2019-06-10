@@ -86,6 +86,11 @@ module ReverseProxy
       http_options[:verify_mode] = OpenSSL::SSL::VERIFY_NONE unless options[:verify_ssl]
       http_options.merge!(options[:http]) if options[:http]
 
+      # set host to end target
+      headers = target_request.instance_variable_get(:@header)
+      headers['host'] = [uri.hostname]
+      target_request.instance_variable_set(:@header, headers)
+
       # Make the request
       Net::HTTP.start(uri.hostname, uri.port, http_options) do |http|
         callbacks[:on_connect].call(http)
